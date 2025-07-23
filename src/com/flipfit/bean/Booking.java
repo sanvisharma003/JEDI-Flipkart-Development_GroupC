@@ -1,5 +1,7 @@
 package com.flipfit.bean;
 
+//just trying editing the code - mansi
+
 public class Booking {
     public int slotBookingId;
     public int userId;
