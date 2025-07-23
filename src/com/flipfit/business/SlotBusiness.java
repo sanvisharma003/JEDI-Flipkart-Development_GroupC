@@ -2,24 +2,24 @@ package com.flipfit.business;
 
 public class SlotBusiness
 {
-    public int decrease_seats()
+    public int decrease_seats(int availableSeats)
     {
-        //availableseats--;
+        availableSeats--;
         System.out.println("Decreasing seats");
-        //return availableSeats;
-        return 0;
+        return availableSeats;
+
     }
 
-    public int increase_seats(int availableseats)
+    public int increase_seats(int availableSeats)
     {
-        availableseats--;
+        availableSeats--;
         System.out.println("increasing seats");
-        return availableseats;
+        return availableSeats;
     }
 
-    public boolean is_avail(int availableseats)
+    public boolean is_avail(int availableSeats)
     {
-        System.out.println("Is avail " + availableseats);
+        System.out.println("Is avail " + availableSeats);
         return true;
     }
 

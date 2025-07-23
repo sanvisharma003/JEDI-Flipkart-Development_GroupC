@@ -7,7 +7,7 @@ import com.flipfit.bean.GymUser;
 //Checking for changes
 public class AdminBusiness
 {
-    private boolean approval(int GymId)
+    public boolean approval(int GymId)
     {
         System.out.println("GymAdminId = " + GymId);
         return true;
@@ -23,12 +23,12 @@ public class AdminBusiness
         System.out.println("Adding Owner");
     }
 
-    public void view_gym()
+    public void view_gym(int GymId)
     {
         System.out.println("View Gym");
     }
 
-    public void view_owner()
+    public void view_owner(int OwnerId)
     {
         System.out.println("View owner");
     }
