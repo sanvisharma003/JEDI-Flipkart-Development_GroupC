@@ -1,3 +1,5 @@
+
+
 package com.flipfit.client;
 
 //import com.flipfit.bean.GymUser;
@@ -98,5 +100,4 @@ public class GymCustomerMenu {
         }
     }
 }
-
 

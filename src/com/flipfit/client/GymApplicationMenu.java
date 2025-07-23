@@ -25,8 +25,10 @@ public class GymApplicationMenu {
                case 1:
                    login();
                    break;
-//            case 2:
-//                registration();
+               case 2:
+                    registration();
+                    break;
+
 //            case 3:
 //                changePassword();
                case 4:
@@ -41,21 +43,26 @@ public class GymApplicationMenu {
 
     }
 
+    private static void log()
+    {
+        String userName, password;
+        System.out.println("Enter your Username");
+        userName = scanner.next();
+
+        System.out.println("Enter your Password");
+        password = scanner.next();
+    }
+
     private static void login(){
         try {
-            String userName, password;
+
             System.out.println("Enter your Role \n 1 Admin \n 2 Customer \n 3 Gym Owner \n 4 Exit");
             int role = scanner.nextInt();
 
             switch(role)
             {
                 case 1:
-                    System.out.println("Enter your Username");
-                    userName = scanner.next();
-
-                    System.out.println("Enter your Password");
-                    password = scanner.next();
-
+                    log();
                     GymAdminMenu gam = new  GymAdminMenu();
                     gam.GAMenu();
 
@@ -63,23 +70,13 @@ public class GymApplicationMenu {
 
                 case 2:
 
-                    System.out.println("Enter your Username");
-                    userName = scanner.next();
-
-                    System.out.println("Enter your Password");
-                    password = scanner.next();
-
-                //adminClient.gymCustomerLogin(userName,password);
+                    log();
                     GymCustomerMenu gcm = new GymCustomerMenu();
                     gcm.GCMenu(1000);
                     break;
 
                 case 3:
-                    System.out.println("Enter your Username");
-                    userName = scanner.next();
-
-                    System.out.println("Enter your Password");
-                    password = scanner.next();
+                    log();
 
                     GymOwnerMenu gom = new GymOwnerMenu();
                     gom.OwnerMenu();
@@ -94,27 +91,22 @@ public class GymApplicationMenu {
         }
     }
 
-//    private static void registration(){
-//        try {
-//            System.out.println("Enter your role");
-//            String role = scanner.next();
-//            if(role == "ADMIN")
-//            {
-//                System.out.println("Admin is already registered");
-//                mainPage();
-//            }
-//            if(role == "CUSTOMER")
-//            {
-//                customerClient.register();
-//            }
-//            if(role == "OWNER")
-//            {
-//                gymOwnerClient.register();
-//            }
-//        }catch (IllegalArgumentException | ParseException e){
-//            System.out.println("Invalid Option Selected");
-//        }
-//    }
+    private static void registration()
+    {
+            System.out.println("Enter your role \n1. Owner\n2. Customer");
+            int cho= scanner.nextInt();
+
+            switch(cho)
+            {
+                case 1:
+                    System.out.println("Registered as Owner");
+                    break;
+                case 2:
+                    System.out.println("Registered as Customer");
+                    break;
+            }
+
+    }
 
     public static void main(String[] args) {
         System.out.println("WELCOME TO FLIPFIT APPLICATION");

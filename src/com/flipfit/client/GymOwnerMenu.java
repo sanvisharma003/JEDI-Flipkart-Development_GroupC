@@ -67,6 +67,7 @@ public class GymOwnerMenu {
             System.out.println("3. View Payments");
             System.out.println("4. View User Data");
             System.out.println("5. Add Slot");
+            System.out.println("6. Edit Profile");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
 
@@ -103,9 +104,13 @@ public class GymOwnerMenu {
                     addSlot(gymIdSlot, slotId);
                     break;
 
+                case 6:
+                    System.out.print("Edit profile");
+                    break;
+
                 case 0:
                     System.out.println("Exiting menu.");
-                    break;
+                    return;
 
                 default:
                     System.out.println("Invalid choice. Please try again.");

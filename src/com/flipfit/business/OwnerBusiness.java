@@ -31,7 +31,8 @@ public class OwnerBusiness
         System.out.println("Adding slot");
         return true;
     }
-    public boolean loginGymOwner(String userName, String password) {
+    public boolean loginGymOwner(String userName, String password)
+    {
         // Dummy login logic
         return userName.equals("owner") && password.equals("password");
     }

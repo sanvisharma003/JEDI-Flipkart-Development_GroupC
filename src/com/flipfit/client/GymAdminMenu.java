@@ -84,7 +84,7 @@ public class GymAdminMenu {
         System.out.println("Welcome ADMIN to FlipFit Application\nLogin Time: "+ currentTime);
         while(true)
         {
-            System.out.println("1. Approvals\n2. View an Owner\n3. View a Gym\n4. Add an owner\n5. View payments \n6. Go Back To Previous Menu");
+            System.out.println("1. Approvals\n2. View an Owner\n3. View all Gym\n4. Add an owner\n5. View payments \n6. cancel Approval\n7.Go Back To Previous Menu");
             int pendingChoice = scanner.nextInt();
             switch (pendingChoice) {
                 case 1:
@@ -112,6 +112,9 @@ public class GymAdminMenu {
                     gymAdminBusiness.view_all_payments();
                     break;
                 case 6:
+                    System.out.println("Cancel Approval");
+                    break;
+                case 7:
                     return;
             }
         }

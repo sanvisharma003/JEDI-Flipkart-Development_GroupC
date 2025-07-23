@@ -1,4 +1,6 @@
 package com.flipfit.business;
 
-public class UserBusiness {
+public class UserBusiness
+{
+
 }
