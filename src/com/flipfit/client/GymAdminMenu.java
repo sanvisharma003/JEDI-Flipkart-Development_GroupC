@@ -24,10 +24,16 @@ public class GymAdminMenu {
 //    private static FlipFitGymOwnerInterface gymOwnerService = new FlipFitGymOwnerService();
 //    private static FlipFitGymCenterInterface gymCenterService = new FlipFitGymCenterService();
 
-    private static AdminBusiness gymAdminBusiness = new AdminBusiness();
-    private static SlotBusiness gymSlotBusiness = new SlotBusiness();
-    private static OwnerBusiness gymOwnerBusiness = new OwnerBusiness();
-    public static Scanner scanner = new Scanner(System.in);
+//    private static AdminBusiness gymAdminBusiness = new AdminBusiness();
+//    private static SlotBusiness gymSlotBusiness = new SlotBusiness();
+//    private static OwnerBusiness gymOwnerBusiness = new OwnerBusiness();
+
+private static AdminBusinessInterface gymAdminBusiness;
+private static SlotBusinessInterface gymSlotBusiness;
+ private static OwnerBusinessInterface gymOwnerBusiness;
+
+ public static Scanner scanner = new Scanner(System.in);
+
 
 
     public boolean adminLogin(String userName, String password) {
