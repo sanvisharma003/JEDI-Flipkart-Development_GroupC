@@ -2,6 +2,10 @@ package com.flipfit.dao;
 
 //abcc
 import com.flipfit.bean.GymUser;
+import java.util.List;
+import com.flipfit.bean.Booking;
+import com.flipfit.bean.Gym;
+import com.flipfit.bean.Slot;
 
 /**
  * Data Access Object (DAO) interface for handling user-centric operations,
@@ -33,4 +37,14 @@ public interface FlipFitCustomerDAOInterface {
      * @return A GymUser object if found, otherwise null.
      */
     GymUser getUserByName(String userName);
+
+    List<GymUser> getAllCustomers();
+
+    // --- Booking and Slot Management Methods ---
+    List<Gym> getAllGyms();
+    List<Slot> getSlotsByGymId(int gymId);
+    boolean createBooking(int userId, int gymId, int slotId);
+    List<Booking> getBookingsByUserId(int userId);
+    boolean cancelBooking(int bookingId);
+
 }

@@ -4,7 +4,15 @@ public class Gym {
     public int GymId;
     public int GymOwnerId;
     public String GymName;
+    public Gym() {
+    }
 
+    public Gym(int gymId, int gymOwnerId, String gymName, String location) {
+        this.GymId = gymId;
+        this.GymOwnerId = gymOwnerId;
+        this.GymName = gymName;
+        this.location = location;
+    }
     public int getGymId() {
         return GymId;
     }

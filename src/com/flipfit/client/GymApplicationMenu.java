@@ -72,7 +72,7 @@ public class GymApplicationMenu {
 
                     log();
                     GymCustomerMenu gcm = new GymCustomerMenu();
-                    gcm.GCMenu(1000);
+                    gcm.showCustomerDashboard(1000);
                     break;
 
                 case 3:
