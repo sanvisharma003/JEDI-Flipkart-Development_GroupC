@@ -1,13 +1,12 @@
 package com.flipfit.dao;
 
-import com.flipfit.bean.Gym;
-import com.flipfit.bean.GymOwner;
+import com.flipfit.bean.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList; // Needed if you want mutable lists as values
+import java.util.Arrays;
+
 
 public class GymOwnerDaoImpl implements GymOwnerDaoInterface {
 
@@ -15,13 +14,27 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface {
     private static Map<Integer, GymOwner> gymOwnersDB = new HashMap<>();
     // Mock database using HashMap for Gym_Center objects
     private static Map<Integer, Gym> gymCentersDB = new HashMap<>();
+    private static Map<Integer, Slot> gymSlotDB = new HashMap<>();
+    //private static List<Integer> gymPaymentsDB = new ArrayList<>();
+    private static Map<Integer, GymUser> gymUsersDB = new HashMap<>();
+    private static Map<Integer, Booking> gymBookingsDB = new HashMap<>();
+
+
 
     // For generating unique IDs for mock data
     private static AtomicInteger ownerIdCounter = new AtomicInteger(1);
     private static AtomicInteger centerIdCounter = new AtomicInteger(1);
+//    int[] payments= new int[]{2000, 1000, 5000};
+    private static Map<Integer, List<Integer>> gymPaymentsDB = new HashMap<>();
 
-    // Static block to pre-populate some mock data for demonstration
+    // Populate the map
+
     static {
+        //sample payments
+        gymPaymentsDB.put(123, new ArrayList<>(Arrays.asList(100, 200, 300))); // Use ArrayList for mutable lists
+        gymPaymentsDB.put(456, new ArrayList<>(Arrays.asList(400, 500, 600)));
+        gymPaymentsDB.put(789, new ArrayList<>(Arrays.asList(700, 800, 900)));
+        // Static block to pre-populate some mock data for demonstration
         // Sample Gym Owners
         GymOwner owner1 = new GymOwner();
         owner1.setGymUserId(234);
@@ -78,6 +91,46 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface {
 //        center1.setApproved(true);
         gymCentersDB.put(center2.getGymId(), center2);
 
+        //GYM USER data
+
+        GymUser user1 = new GymUser();
+        user1.setGymUserId(1); // Use the shared user ID counter
+        user1.setGymUserName("Alice Customer");
+        user1.setGymUserEmail("alice@example.com");
+        user1.setGymUserPassword("userpass1");
+        user1.setPhoneno(912); // Using L for long literal
+        user1.setGymUserRole("CUSTOMER");
+        gymUsersDB.put(user1.getGymUserId(), user1);
+
+        GymUser user2 = new GymUser();
+        user2.setGymUserId(2);
+        user2.setGymUserName("David User");
+        user2.setGymUserEmail("david@example.com");
+        user2.setGymUserPassword("userpass2");
+        user2.setPhoneno(987);
+        user2.setGymUserRole("CUSTOMER");
+        gymUsersDB.put(user2.getGymUserId(), user2);
+
+//Bookings dummy data
+        Booking booking1 = new Booking();
+        booking1.slotBookingId = 1; // 1
+        booking1.userId = 11; // 1003
+        booking1.slotId = 111; // 1
+        booking1.gymId = 1111; // 100
+        booking1.date = "2025-07-25";
+        booking1.isCancelled = false;
+        gymBookingsDB.put(booking1.slotBookingId, booking1);
+
+        // Booking 2: User 1004 (David), Slot 2, Gym 100, Date "2025-07-25", Not Cancelled
+        // Using the provided dummy data values for this specific booking
+        Booking booking2 = new Booking();
+        booking2.slotBookingId = 2; // Fixed ID as per your dummy data
+        booking2.userId = 22; // User ID as per your dummy data
+        booking2.slotId = 222; // Slot ID as per your dummy data
+        booking2.gymId = 1111; // Gym ID as per your dummy data
+        booking2.date = "2025-07-25";
+        booking2.isCancelled = false;
+        gymBookingsDB.put(booking2.slotBookingId, booking2);
 
     }
 
@@ -87,13 +140,114 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface {
             return false;
         }
         // Assign a new ID to the gym center
-        gCenter.setGymId(centerIdCounter.getAndIncrement());
+        //gCenter.setGymId(centerIdCounter.getAndIncrement());
         // By default, a newly registered center is not approved
         //gCenter.setApproved(false);
         gymCentersDB.put(gCenter.getGymId(), gCenter);
-        System.out.println("Mock: Registered gym center: " + gCenter.getGymName() + " with ID: " + gCenter.getGymId());
+        System.out.println("Mock: Registered gym center: " + gCenter.getGymName() + " with gym ID: " + gCenter.getGymId() + " with gym owner: " + gCenter.getGymOwnerId()+ " Address "+gCenter.getLocation());
         return true;
     }
+    public boolean addSlot(Slot gSlot) {
+        if (gSlot == null) {
+            return false;
+        }
+        // Assign a new ID to the gym center
+        //gCenter.setGymId(centerIdCounter.getAndIncrement());
+        // By default, a newly registered center is not approved
+        //gCenter.setApproved(false);
+        gymSlotDB.put(gSlot.getSlotId(), gSlot);
+        System.out.println("Mock: Registered gym center with slot id:  " + gSlot.getSlotId() + " start time: " + gSlot.getSlotStartTime() + " end time: " + gSlot.getSlotEndTime());
+        return true;
+    }
+
+    public boolean viewPayments(int GymId) {
+        System.out.println("--- Payments for Gym ID: " + GymId + " ---");
+
+        List<Integer> paymentsForGym = gymPaymentsDB.get(GymId);
+
+        if (paymentsForGym != null && !paymentsForGym.isEmpty()) {
+            for (int payment : paymentsForGym) {
+                System.out.println("Payment: " + payment);
+            }
+            return true; // Payments were found and displayed
+        } else {
+            System.out.println("No payments found for Gym ID: " + GymId);
+            return false; // No payments found
+        }
+    }
+
+    public boolean viewUsers(int userId) { // Changed parameter name to 'userId' for clarity
+        System.out.println("--- User Data for User ID: " + userId + " ---");
+
+        GymUser user = gymUsersDB.get(userId); // Get the single GymUser object
+
+        if (user != null) {
+            // Print details of the single user object
+            System.out.println("User ID: " + user.getGymUserId());
+            System.out.println("Name: " + user.getGymUserName());
+            System.out.println("Email: " + user.getGymUserEmail());
+            // System.out.println("Password: " + user.getGymUserPassword()); // Usually don't print passwords
+            System.out.println("Phone No: " + user.getPhoneno());
+            System.out.println("Role: " + user.getGymUserRole());
+            return true; // User was found and data displayed
+        } else {
+            System.out.println("No user found for User ID: " + userId);
+            return false; // No user found
+        }
+    }
+//    public boolean viewBookings(int gymId) { // Changed parameter name to 'bookingId'
+//        System.out.println("--- Booking Data for Gym ID: " + gymId + " ---");
+//
+//        Booking booking = gymBookingsDB.get(gymId); // Get the single Booking object
+//
+//        if (booking != null) {
+//            // Print details of the single booking object
+//            System.out.println("Booking ID: " + booking.slotBookingId);
+//            System.out.println("User ID: " + booking.userId);
+//            System.out.println("Slot ID: " + booking.slotId);
+//            System.out.println("Gym ID: " + booking.gymId);
+//            System.out.println("Date: " + booking.date);
+//            System.out.println("Cancelled: " + booking.isCancelled);
+//            // If you had an enum for status, you'd print it here:
+//            // System.out.println("Status: " + booking.status);
+//            return true; // Booking was found and data displayed
+//        } else {
+//            System.out.println("No booking found for Booking ID: " + gymId);
+//            return false; // No booking found
+//        }
+//    }
+
+    public boolean viewBookings(int gymId) { // Parameter name is now 'gymId' as requested
+        System.out.println("--- All Bookings for Gym ID: " + gymId + " ---");
+
+        List<Booking> bookingsForGym = new ArrayList<>();
+
+        // Iterate through all values (Booking objects) in the gymBookingsDB map
+        for (Booking booking : gymBookingsDB.values()) {
+            // Check if the current booking's gymId matches the requested gymId
+            if (booking.gymId == gymId) {
+                bookingsForGym.add(booking); // Add to our list
+            }
+        }
+
+        if (!bookingsForGym.isEmpty()) {
+            System.out.println("Found " + bookingsForGym.size() + " booking(s) for Gym ID " + gymId + ":");
+            for (Booking booking : bookingsForGym) {
+                System.out.println("------------------------------------");
+                System.out.println("Booking ID: " + booking.slotBookingId);
+                System.out.println("  User ID: " + booking.userId);
+                System.out.println("  Slot ID: " + booking.slotId);
+                System.out.println("  Date: " + booking.date);
+                System.out.println("  Cancelled: " + booking.isCancelled);
+            }
+            System.out.println("------------------------------------");
+            return true; // Bookings were found and displayed
+        } else {
+            System.out.println("No bookings found for Gym ID: " + gymId);
+            return false; // No bookings found
+        }
+    }
+
 
     @Override
     public GymOwner getGymOwnerDetails(String ownerEmail) {

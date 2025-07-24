@@ -2,6 +2,9 @@ package com.flipfit.bean;
 
 public class Slot {
     public int slotId;
+    public int gymId;
+
+
     public String slotStartTime;
     public String slotEndTime;
     public String date;
@@ -55,4 +58,12 @@ public class Slot {
     public void setAvailableSeats(int availableSeats) {
         this.availableSeats = availableSeats;
     }
+    public int getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(int gymId) {
+        this.gymId = gymId;
+    }
+
 }

@@ -32,8 +32,8 @@ public class GymOwnerMenu {
         return true;
     }
 
-    public static void addGym() {
-        gymOwnerBusiness.add_gym();
+    public static void addGym(int ownerId, String GymName, String address) {
+        gymOwnerBusiness.add_gym(ownerId, GymName, address);
         //System.out.println("Gym Owner Added");
     }
 
@@ -48,8 +48,8 @@ public class GymOwnerMenu {
     public static void viewUserData(int GymUserId){
         gymOwnerBusiness.view_userdata(GymUserId);
     }
-    public static void addSlot(int GymId,int SlotId) {
-        gymOwnerBusiness.add_slot(GymId,SlotId);
+    public static void addSlot(int GymId,String starttime,String endTime) {
+        gymOwnerBusiness.add_slot(GymId,starttime,endTime);
     }
     /// /////////////////////////////////
 
@@ -58,6 +58,9 @@ public class GymOwnerMenu {
     public void OwnerMenu()
     {
         Scanner scanner = new Scanner(System.in);
+        String gymName,address,starttime,endTime;
+        int gymId,ownerId;
+
 
         while(true)
         {
@@ -72,10 +75,18 @@ public class GymOwnerMenu {
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
-                    addGym();
+                    System.out.print("Enter Gym Name: ");
+                    gymName = scanner.nextLine();
+                    System.out.print("Enter Gym Address: ");
+                    address = scanner.nextLine();
+                    System.out.print("Enter Gym OwnerID: ");
+                    ownerId = scanner.nextInt();
+
+                    addGym(ownerId,gymName,address);
                     break;
 
                 case 2:
@@ -97,11 +108,16 @@ public class GymOwnerMenu {
                     break;
 
                 case 5:
-                    System.out.print("Enter Gym ID: ");
-                    int gymIdSlot = scanner.nextInt();
-                    System.out.print("Enter Slot ID: ");
-                    int slotId = scanner.nextInt();
-                    addSlot(gymIdSlot, slotId);
+                    System.out.print("Enter Gym Id: ");
+                    gymId = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter Start time: ");
+                    starttime= scanner.nextLine();
+
+                    System.out.print("Enter End time: ");
+                    endTime = scanner.nextLine();
+
+                    addSlot(gymId,starttime,endTime);
                     break;
 
                 case 6:
