@@ -38,6 +38,7 @@ public class Slot {
     public String getDate() {
         return date;
     }
+    //hello
 
     public void setDate(String date) {
         this.date = date;
