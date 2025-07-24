@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * DAO interface for handling administrative tasks.
- * Defines methods for gym owner and gym center approval and retrieval.
+ * .Defines methods for gym owner and gym center approval and retrieval.
  */
 public interface FlipFitAdminDAOInterface {
 

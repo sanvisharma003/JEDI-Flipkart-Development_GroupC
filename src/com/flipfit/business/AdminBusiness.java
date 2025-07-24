@@ -37,7 +37,7 @@
 //    {
 //        System.out.println("View all payments");
 //    }
-//}
+//.}
 package com.flipfit.business;
 
 import com.flipfit.bean.Gym;

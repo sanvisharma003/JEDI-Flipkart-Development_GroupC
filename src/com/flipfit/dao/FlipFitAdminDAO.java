@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * In-memory implementation of the admin DAO.
+ * .In-memory implementation of the admin DAO.
  * Uses Maps to simulate a database for storing and managing approvals.
  */
 public class FlipFitAdminDAO implements FlipFitAdminDAOInterface {

@@ -7,7 +7,7 @@
 //    public void view_gym(int GymId);
 //    public void view_owner(int OwnerId);
 //    public void view_all_payments();
-//}
+//.}
 package com.flipfit.business;
 
 import com.flipfit.bean.Gym;

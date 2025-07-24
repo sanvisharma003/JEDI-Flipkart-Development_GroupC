@@ -137,7 +137,7 @@ import java.util.Scanner;
 
 /**
  * Provides a command-line interface for the Administrator.
- */
+ .*/
 public class GymAdminMenu {
 
     private static final AdminBusinessInterface adminBusiness = new AdminBusiness();
