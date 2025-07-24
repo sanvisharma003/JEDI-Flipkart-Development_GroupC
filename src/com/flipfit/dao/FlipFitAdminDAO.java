@@ -2,112 +2,103 @@ package com.flipfit.dao;
 
 import com.flipfit.bean.Gym;
 import com.flipfit.bean.GymOwner;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-//ghgh
-public class FlipFitAdminDAO /* implements FlipFitAdminDAOInterface */ {
 
-    private static List<GymOwner> gymOwnerList = new ArrayList<>();
-    private static List<Gym> gymCenterList = new ArrayList<>();
+/**
+ * In-memory implementation of the admin DAO.
+ * Uses Maps to simulate a database for storing and managing approvals.
+ */
+public class FlipFitAdminDAO implements FlipFitAdminDAOInterface {
 
-    // WORKAROUND 1: Map to track Gym approval status using GymId as the key.
-    private static Map<Integer, Boolean> gymApprovalStatus = new HashMap<>();
+    private static final Map<String, GymOwner> gymOwners = new HashMap<>();
+    private static final Map<String, Gym> gyms = new HashMap<>();
+    private static final Map<String, Boolean> ownerApprovalStatus = new HashMap<>();
+    private static final Map<String, Boolean> gymApprovalStatus = new HashMap<>();
 
-    // WORKAROUND 2: Map to track GymOwner approval status using PAN as the unique key.
-    private static Map<String, Boolean> ownerApprovalStatus = new HashMap<>();
-
+    // Static block for hardcoded data
     static {
-        // --- Initialize Gym Owners using PAN as the ID ---
         GymOwner owner1 = new GymOwner();
-        owner1.setPAN("APN12345X"); // Using PAN as the unique identifier
-        gymOwnerList.add(owner1);
-        ownerApprovalStatus.put("APN12345X", false); // Mark as Pending
+        owner1.setGymUserId(101);
+        owner1.setPAN("APN12345X"); // Using PAN as a unique String ID
+        owner1.setGymUserName("owner_pending_1");
+        gymOwners.put(owner1.getPAN(), owner1);
+        ownerApprovalStatus.put(owner1.getPAN(), false); // Pending
 
         GymOwner owner2 = new GymOwner();
+        owner2.setGymUserId(102);
         owner2.setPAN("BQN67890Y");
-        gymOwnerList.add(owner2);
-        ownerApprovalStatus.put("BQN67890Y", false); // Mark as Pending
+        owner2.setGymUserName("owner_pending_2");
+        gymOwners.put(owner2.getPAN(), owner2);
+        ownerApprovalStatus.put(owner2.getPAN(), false); // Pending
 
         GymOwner owner3 = new GymOwner();
+        owner3.setGymUserId(103);
         owner3.setPAN("CRZ11223Z");
-        gymOwnerList.add(owner3);
-        ownerApprovalStatus.put("CRZ11223Z", true); // Mark as Approved
+        owner3.setGymUserName("owner_approved_1");
+        gymOwners.put(owner3.getPAN(), owner3);
+        ownerApprovalStatus.put(owner3.getPAN(), true); // Approved
 
-        // --- Initialize Gyms ---
-        Gym center1 = new Gym();
-        center1.setGymId(101);
-        center1.setGymName("Downtown Fitness");
-        gymCenterList.add(center1);
-        gymApprovalStatus.put(101, true);
+        Gym gym1 = new Gym();
+        gym1.setGymId(201);
+        gym1.setGymName("Downtown Fitness (Approved)");
+        gyms.put(String.valueOf(gym1.getGymId()), gym1);
+        gymApprovalStatus.put(String.valueOf(gym1.getGymId()), true); // Approved
 
-        Gym center2 = new Gym();
-        center2.setGymId(102);
-        center2.setGymName("Uptown Strength");
-        gymCenterList.add(center2);
-        gymApprovalStatus.put(102, true);
-
-        Gym center3 = new Gym();
-        center3.setGymId(103);
-        center3.setGymName("Westside Gym");
-        gymCenterList.add(center3);
-        gymApprovalStatus.put(103, false);
+        Gym gym2 = new Gym();
+        gym2.setGymId(202);
+        gym2.setGymName("Uptown Strength (Pending)");
+        gyms.put(String.valueOf(gym2.getGymId()), gym2);
+        gymApprovalStatus.put(String.valueOf(gym2.getGymId()), false); // Pending
     }
 
-    /**
-     * Filters the owner list based on the external approval status map.
-     */
+    @Override
     public List<GymOwner> getPendingGymOwners() {
-        System.out.println("Fetching all pending gym owners...");
-        return gymOwnerList.stream()
-                .filter(owner -> {
-                    // Check the owner's status in our map using their PAN.
-                    boolean isApproved = ownerApprovalStatus.getOrDefault(owner.getPAN(), false);
-                    return !isApproved;
-                })
+        return gymOwners.keySet().stream()
+                .filter(ownerId ->!ownerApprovalStatus.getOrDefault(ownerId, true))
+                .map(gymOwners::get)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Validates an owner by updating their status in the map, using PAN as the ID.
-     * @param ownerPAN The PAN number of the owner to validate.
-     * @param isApproved The new approval status.
-     */
-    public void validateGymOwner(String ownerPAN, boolean isApproved) {
-        if (ownerApprovalStatus.containsKey(ownerPAN)) {
-            ownerApprovalStatus.put(ownerPAN, isApproved);
-            System.out.println("✅ Gym Owner with PAN " + ownerPAN + " has been " + (isApproved ? "Approved" : "Rejected") + ".");
+    @Override
+    public void validateGymOwner(String ownerId, boolean isApproved) {
+        if (ownerApprovalStatus.containsKey(ownerId)) {
+            ownerApprovalStatus.put(ownerId, isApproved);
+            String status = isApproved? "Approved" : "Rejected";
+            System.out.println("DAO: Gym Owner with ID " + ownerId + " has been " + status + ".");
         } else {
-            System.out.println("❌ Gym Owner with PAN " + ownerPAN + " not found.");
+            System.out.println("DAO: Gym Owner with ID " + ownerId + " not found.");
         }
     }
 
-    /**
-     * Validates a gym by updating its status in the gym-specific map.
-     * @param gymCentreId The ID of the gym center to validate.
-     * @param isApproved The new approval status.
-     */
-    public void validateGymCentre(int gymCentreId, boolean isApproved) {
+    @Override
+    public List<Gym> getPendingGymCentres() {
+        return gyms.keySet().stream()
+                .filter(gymId ->!gymApprovalStatus.getOrDefault(gymId, true))
+                .map(gyms::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void validateGymCentre(String gymCentreId, boolean isApproved) {
         if (gymApprovalStatus.containsKey(gymCentreId)) {
             gymApprovalStatus.put(gymCentreId, isApproved);
-            System.out.println("✅ Gym Centre " + gymCentreId + " has been " + (isApproved ? "Approved" : "Rejected") + ".");
+            String status = isApproved? "Approved" : "Rejected";
+            System.out.println("DAO: Gym Centre with ID " + gymCentreId + " has been " + status + ".");
         } else {
-            System.out.println("❌ Gym Centre with ID " + gymCentreId + " not found.");
+            System.out.println("DAO: Gym Centre with ID " + gymCentreId + " not found.");
         }
     }
 
-    /**
-     * Filters the gym list based on the external approval status map.
-     */
-    public List<Gym> getPendingGymCentres() {
-        System.out.println("Fetching all pending gym centres...");
-        return gymCenterList.stream()
-                .filter(center -> {
-                    boolean isApproved = gymApprovalStatus.getOrDefault(center.getGymId(), false);
-                    return !isApproved;
-                })
-                .collect(Collectors.toList());
+    @Override
+    public GymOwner getOwnerById(String ownerId) {
+        return gymOwners.get(ownerId);
+    }
+
+    @Override
+    public Gym getGymById(String gymId) {
+        return gyms.get(gymId);
     }
 }
