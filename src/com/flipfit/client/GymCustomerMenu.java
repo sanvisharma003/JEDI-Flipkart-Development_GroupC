@@ -98,8 +98,10 @@ public class GymCustomerMenu {
         }
     }
 
-    public void showCustomerDashboard(int userId) {
+    public void showCustomerDashboard()
+    {
         System.out.println("\n--- Customer Menu ---");
+        int userId=1000;
         while (true) {
             System.out.println("\n1. Book a Slot");
             System.out.println("2. View My Bookings");

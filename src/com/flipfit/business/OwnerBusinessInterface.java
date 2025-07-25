@@ -2,7 +2,7 @@ package com.flipfit.business;
 
 public interface OwnerBusinessInterface
 {
-    public void add_gym(int ownerId, String GymName, String address);
+    public void add_gym( String GymName, String address);
     public void view_bookings(int GymId);
     public void view_payments(int GymId);
     public void view_userdata(int GymUserId);

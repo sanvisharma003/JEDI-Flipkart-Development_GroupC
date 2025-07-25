@@ -32,8 +32,8 @@ public class GymOwnerMenu {
         return true;
     }
 
-    public static void addGym(int ownerId, String GymName, String address) {
-        gymOwnerBusiness.add_gym(ownerId, GymName, address);
+    public static void addGym( String GymName, String address) {
+        gymOwnerBusiness.add_gym( GymName, address);
         //System.out.println("Gym Owner Added");
     }
 
@@ -83,10 +83,10 @@ public class GymOwnerMenu {
                     gymName = scanner.nextLine();
                     System.out.print("Enter Gym Address: ");
                     address = scanner.nextLine();
-                    System.out.print("Enter Gym OwnerID: ");
-                    ownerId = scanner.nextInt();
+//                    System.out.print("Enter Gym OwnerID: ");
+//                    ownerId = scanner.nextInt();
 
-                    addGym(ownerId,gymName,address);
+                    addGym(gymName,address);
                     break;
 
                 case 2:

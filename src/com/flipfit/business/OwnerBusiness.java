@@ -7,31 +7,26 @@ import com.flipfit.dao.GymOwnerDaoImpl;
 
 public class OwnerBusiness implements OwnerBusinessInterface
 {
-    static int gymIdCount=1;
+    static int gymIdCount=304;
     static int slotIdCount=1;
     private static final GymOwnerDaoImpl gymOwnerDao = new GymOwnerDaoImpl();
-    public void add_gym(int ownerId, String GymName, String address)
+
+    public void add_gym(String GymName, String address)
     {
 
         Gym gym = new Gym();
-        gym.setGymOwnerId(ownerId);
+        //gym.setGymOwnerId(ownerId);
         gym.setLocation(address);
         gym.setGymName(GymName);
 
         gym.setGymId(gymIdCount);
         gymIdCount++;
 
+        System.out.println(gymIdCount);
+
         gymOwnerDao.registerGymCenter(gym);
         System.out.println("Adding gym");
     }
-
-//    public void view_bookings(int GymId)
-//    {
-//        //date time
-//        System.out.println("viewing bookings ");
-//    }
-
-
 
     public void view_payments(int GymId)
     {
