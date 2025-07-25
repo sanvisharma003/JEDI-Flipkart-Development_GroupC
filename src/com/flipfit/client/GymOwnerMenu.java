@@ -2,6 +2,8 @@ package com.flipfit.client;
 import com.flipfit.bean.Gym;
 import com.flipfit.bean.Slot;
 import com.flipfit.business.*;
+import com.flipfit.dao.FlipFitAdminDAO;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -68,7 +70,7 @@ public class GymOwnerMenu {
             System.out.println("1. Add Gym");
             System.out.println("2. View Bookings");
             System.out.println("3. View Payments");
-//            System.out.println("4. View User Data");
+            System.out.println("4. View User Data");
             System.out.println("5. Add Slot");
             System.out.println("6. Exit");
             System.out.print("Enter your choice: ");
@@ -101,12 +103,14 @@ public class GymOwnerMenu {
                     break;
 
                 case 4:
-                    System.out.print("Enter Gym User ID to view user data: ");
-                    int gymUserId = scanner.nextInt();
+//                    System.out.print("Enter Gym User ID to view user data: ");
+                    int gymUserId = 0;
                     viewUserData(gymUserId);
                     break;
 
                 case 5:
+                    FlipFitAdminDAO flipFitAdminDAO = new FlipFitAdminDAO();
+                    flipFitAdminDAO.getGymById();
                     System.out.print("Enter Gym Id: ");
                     gymId = scanner.nextInt();
                     scanner.nextLine();

@@ -7,15 +7,26 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.flipfit.client.GymApplicationMenu;
+import com.flipfit.dao.FlipFitAdminDAO;
+import java.util.regex.*;
+
 
 public class GymOwnerDaoImpl implements GymOwnerDaoInterface
 {
+    public class EmailValidator {
+        public static boolean isValidEmail(String email) {
+            String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+            Pattern pattern = Pattern.compile(emailRegex);
+            Matcher matcher = pattern.matcher(email);
+            return matcher.matches();
+        }
+    }
     private static Map<Integer, GymOwner> gymOwnersDB = new HashMap<>();
     private static Map<Integer, Gym> gymCentersDB = new HashMap<>();
     private static Map<Integer, Slot> gymSlotDB = new HashMap<>();
     private static Map<Integer, GymUser> gymUsersDB = new HashMap<>();
     private static Map<Integer, Booking> gymBookingsDB = new HashMap<>();
-    private static final String INSERT_SLOT_SQL = "INSERT INTO gym_slots (Gym_Id, Start_Time, End_Time, Date, Total_Seats, Avail_Seats) VALUES (?, ?, ?, ?, ?, ?)";
+//    private static final String INSERT_SLOT_SQL = "INSERT INTO gym_slots (Gym_Id, Start_Time, End_Time, Date, Total_Seats, Avail_Seats) VALUES (?, ?, ?, ?, ?, ?)";
 
     private static Map<Integer, List<Integer>> gymPaymentsDB = new HashMap<>();
     private static GymApplicationMenu gymMenu = new GymApplicationMenu();
@@ -26,7 +37,29 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface
     private static final String VIEW_PAYMENTS_SQL = "SELECT Payment_Id, Customer_Id, Balance, Gym_Id, Slot_Booking_Id FROM Payment WHERE Gym_Id = ?";
 
     private static final String SELECT_BOOKINGS_BY_GYM_ID_SQL = "SELECT Slot_Booking_Id, Customer_Id, Slot_Id, Gym_Id, Date, Is_Cancelled FROM Booking WHERE Gym_Id = ?";
+    private static final String SELECT_USER_BY_ID_SQL = "SELECT * FROM user WHERE Role_Id = 2";
+//    private static final String INSERT_SLOT_SQL = "INSERT INTO Gym_Slot ( Slot_Id,Start_Time, End_Time, Date, Total_Seats, Avail_Seat, Gym_Id,) VALUES (?,?,?,?,?,?,?)";
+private static final String INSERT_SLOT_SQL = "INSERT INTO Gym_Slot (Slot_Id, Start_Time, End_Time, Date, Total_Seats, Avail_Seats, Gym_Id) VALUES (?,?,?,?,?,?,?)";
+    public int getLatestId() {
+        int latestId = -1; // Default value if no record is found
+        String sql = "SELECT Slot_Id FROM Flipfit_Schema.Gym_Slot ORDER BY Slot_Id DESC LIMIT 1";
 
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet rs = preparedStatement.executeQuery()) {
+
+            // Check if a result was returned
+            if (rs.next()) {
+                latestId = rs.getInt(1); // Get the integer from the first column of the result
+                // Or you can use the column name: latestId = rs.getInt("your_int_column");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("DAO: SQL Exception while fetching the latest ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return latestId;
+    }
     public boolean registerGymCenter(Gym gCenter)
     {
         int ownerId = 0;
@@ -68,17 +101,78 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface
         return true;
     }
 
+    public boolean addSlot(Slot gSlot) {
+        // Basic validation for essential slot details before DB interaction
 
-    public boolean addSlot(Slot gSlot)
-    {
-        if (gSlot == null) {
+        if (gSlot == null || gSlot.getGymId() == 0 || gSlot.getSlotStartTime() == null || gSlot.getSlotEndTime() == null ) {
+            System.err.println("Error: Cannot add slot. Missing Gym ID, Start Time, End Time");
             return false;
         }
 
-        gymSlotDB.put(gSlot.getSlotId(), gSlot);
-        System.out.println("Mock: Registered gym center with slot id:  " + gSlot.getSlotId() + " start time: " + gSlot.getSlotStartTime() + " end time: " + gSlot.getSlotEndTime());
-        return true;
+
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            // Establish connection to MySQL using DriverManager (as in registerGymCenter)
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+
+            // Prepare statement to insert data into 'Gym_Slot' table.
+            // Statement.RETURN_GENERATED_KEYS is NOT used here for Slot_Id because it's not AUTO_INCREMENT.
+            preparedStatement = connection.prepareStatement(INSERT_SLOT_SQL);
+
+            // Set parameters for the SQL query.
+            // The order and types MUST match INSERT_SLOT_SQL columns:
+            // (Slot_Id, Gym_Id, Start_Time, End_Time, Date, Total_Seats, Avail_Seats)
+
+            int slotId = getLatestId();
+            slotId++;
+            preparedStatement.setInt(1, slotId);// Provide the Slot_Id
+            preparedStatement.setInt(7, gSlot.getGymId());  // Provide the Gym_Id
+
+            // Start_Time and End_Time are VARCHAR(45) in your DDL, so send as String
+            preparedStatement.setString(2, gSlot.getSlotStartTime().toString()); // Convert LocalTime to String
+            preparedStatement.setString(3, gSlot.getSlotEndTime().toString());   // Convert LocalTime to String
+
+            // Date is DATE in your DDL, so convert String (YYYY-MM-DD) to java.sql.Date
+            String hardcodedDateString = "2024-07-24";
+            // Convert the string to java.sql.Date
+            java.sql.Date sqlDate = java.sql.Date.valueOf(hardcodedDateString);
+            preparedStatement.setDate(4, sqlDate);
+            preparedStatement.setInt(5, 40);
+            preparedStatement.setInt(6, 12);
+
+
+
+            int rowsAffected = preparedStatement.executeUpdate(); // Execute the INSERT query
+
+            if (rowsAffected > 0) {
+                System.out.println(rowsAffected + " row(s) inserted for Slot. ID: " + gSlot.getSlotId()); // Match example print
+                return true;
+            } else {
+                System.err.println("DB Error: No rows affected. Failed to add slot.");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("DB Error adding slot: " + e.getMessage());
+            e.printStackTrace(); // Print stack trace for debugging
+            return false;
+        }
     }
+
+
+//    public boolean addSlot(Slot gSlot)
+//    {
+//        if (gSlot == null) {
+//            return false;
+//        }
+//
+//        gymSlotDB.put(gSlot.getSlotId(), gSlot);
+//        System.out.println("Mock: Registered gym center with slot id:  " + gSlot.getSlotId() + " start time: " + gSlot.getSlotStartTime() + " end time: " + gSlot.getSlotEndTime());
+//        return true;
+//    }
 
     public boolean viewPayments(int GymId)
     {
@@ -143,23 +237,58 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface
         }
     }
 
-    public boolean viewUsers(int userId) { // Changed parameter name to 'userId' for clarity
-        System.out.println("--- User Data for User ID: " + userId + " ---");
+    public void viewUsers(int GymUserId) {
+        System.out.println("--- User Data for User ID: " + GymUserId + " ---");
 
-        GymUser user = gymUsersDB.get(userId); // Get the single GymUser object
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        GymUser user = null; // Initialize user as null
 
-        if (user != null) {
-            // Print details of the single user object
-            System.out.println("User ID: " + user.getGymUserId());
-            System.out.println("Name: " + user.getGymUserName());
-            System.out.println("Email: " + user.getGymUserEmail());
-            // System.out.println("Password: " + user.getGymUserPassword()); // Usually don't print passwords
-            System.out.println("Phone No: " + user.getPhoneno());
-            System.out.println("Role: " + user.getGymUserRole());
-            return true; // User was found and data displayed
-        } else {
-            System.out.println("No user found for User ID: " + userId);
-            return false; // No user found
+        try {
+            // Get connection (using DBUtils as intended, or DriverManager for direct demo)
+            // Using DriverManager directly here as per your snippet's DB_URL/USER/PASSWORD
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+
+            statement = connection.prepareStatement(SELECT_USER_BY_ID_SQL);
+//            statement.setInt(1, GymUserId); // Set the user_id parameter
+
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                // User found, populate GymUser bean
+                user = new GymUser();
+                user.setGymUserId(resultSet.getInt("User_Id")); // Map DB column 'user_id' to GymUserId
+                user.setGymUserName(resultSet.getString("Username")); // Map DB column 'username'
+                user.setGymUserRole(resultSet.getString("Role_Id")); // Map DB column 'GymUserRole'
+                user.setGymUserPassword(resultSet.getString("Password")); // Map DB column 'GymUserPassword'
+                user.setGymUserEmail(resultSet.getString("Email")); // Map DB column 'GymUserEmail'
+                user.setPhoneno(resultSet.getInt("PhoneNo"));
+
+                // Print details of the user object
+                System.out.println("GymUserID: " + user.getGymUserId());
+                System.out.println("Name: " + user.getGymUserName());
+                System.out.println("Email: " + user.getGymUserEmail());
+                System.out.println("Role: " + user.getGymUserRole());
+                System.out.println("Phone No: " + user.getPhoneno());
+
+
+//                return true; // User was found and data displayed
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Database error retrieving user: " + e.getMessage());
+            //e.printStackTrace();
+//            return false;
+        } catch (ClassNotFoundException e) {
+            System.err.println("MySQL JDBC Driver not found. Ensure the JAR is in your classpath.");
+            //e.printStackTrace();
+//            return false;
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred while viewing user: " + e.getMessage());
+            //e.printStackTrace();
+//            return false;
         }
     }
 
@@ -194,7 +323,7 @@ public class GymOwnerDaoImpl implements GymOwnerDaoInterface
                 booking.date = resultSet.getString("Date");
                 // If Booking.date is LocalDateTime, retrieve as Timestamp and convert:
                 // booking.date = resultSet.getTimestamp("date").toLocalDateTime().toString(); // Or store as LocalDateTime
-                booking.isCancelled = resultSet.getBoolean("Is_Cancelled");
+                booking.isCancelled = !resultSet.getBoolean("Is_Cancelled");
 
                 bookingsFound.add(booking); // Add the populated Booking object to the list
             }

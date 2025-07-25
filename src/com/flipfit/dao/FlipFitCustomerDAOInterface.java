@@ -16,6 +16,7 @@ public interface FlipFitCustomerDAOInterface
     public void getAllGyms();
     public boolean createBooking(int userId, int gymId, int slotId);
     public void viewMyBookings(int userId);
+    public boolean cancelBooking(int bookingId);
 
 }
 

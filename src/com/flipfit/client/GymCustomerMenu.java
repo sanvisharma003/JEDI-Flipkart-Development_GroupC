@@ -77,8 +77,8 @@ public class GymCustomerMenu {
             System.out.println("1. Create Bookings");
             System.out.println("2. View My Bookings");
             System.out.println("3. Cancel a Booking");
-            System.out.println("4. Change a Booking");
-            System.out.println("5. Exit");
+//            System.out.println("4. Change a Booking");
+            System.out.println("4. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -102,11 +102,17 @@ public class GymCustomerMenu {
                     break;
                 case 3:
                     //cancelBookingWorkflow(userId);
+                    System.out.println("Enter Customer ID to view your bookings");
+                    userId = scanner.nextInt();
+                    obj.viewMyBookings(userId);
+                    System.out.println("Enter Booking ID");
+                    int bookingId = scanner.nextInt();
+                    obj.cancelBooking(bookingId);
                     break;
+//                case 4:
+//                    //changeBookingWorkflow(userId);
+//                    break;
                 case 4:
-                    //changeBookingWorkflow(userId);
-                    break;
-                case 5:
                     System.out.println("Logging out...");
                     return;
                 default:

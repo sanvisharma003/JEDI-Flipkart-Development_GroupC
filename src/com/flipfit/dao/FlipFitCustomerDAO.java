@@ -138,9 +138,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
 
 public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
 {
+
+    public class EmailValidator {
+        public static boolean isValidEmail(String email) {
+            String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+            Pattern pattern = Pattern.compile(emailRegex);
+            Matcher matcher = pattern.matcher(email);
+            return matcher.matches();
+        }
+    }
 
     private static final String CREATE_BOOKING_SQL = "INSERT INTO `booking` (Slot_Booking_Id, Customer_Id, Slot_Id, Gym_Id, Date, Is_Cancelled) VALUES (?,?,?,?,?, 0)";
     private static final String GET_SLOT_BY_ID_FOR_UPDATE_SQL = "SELECT Avail_Seats, Date FROM `gym_slot` WHERE Slot_Id =? FOR UPDATE";
@@ -149,11 +162,14 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
     private static final String GET_ALL_GYMS_SQL = "SELECT * FROM `gym` WHERE is_approved = 1"; // Redundant with GET_GYMS_SQL
     private static final String GET_SLOTS_BY_GYM_ID_SQL = "SELECT * FROM `gym_slot` WHERE Gym_Id =? AND Avail_Seats > 0";
     private static final String DECREMENT_SLOT_SEATS_SQL = "UPDATE `gym_slot` SET Avail_Seats = Avail_Seats - 1 WHERE Slot_Id =?";
-    private static final String GET_BOOKINGS_BY_USER_ID_SQL = "SELECT Slot_Booking_Id, Slot_Id,Gym_Id,Date, Is_Cancelled FROM Booking WHERE Customer_Id =?"; // Assuming Customer_Id
-    private static final String GET_BOOKING_FOR_CANCELLATION_SQL = "SELECT Slot_Id, is_cancelled FROM `booking` WHERE Booking_Id =? FOR UPDATE";
-    private static final String CANCEL_BOOKING_SQL = "UPDATE `booking` SET is_cancelled = 1 WHERE Booking_Id =?";
+    private static final String GET_BOOKINGS_BY_USER_ID_SQL = "SELECT Slot_Booking_Id, Slot_Id,Gym_Id,Date, Is_Cancelled FROM Booking WHERE Customer_Id =? AND Is_Cancelled =0"; // Assuming Customer_Id
+    private static final String GET_BOOKING_FOR_CANCELLATION_SQL = "SELECT Slot_Id, Is_Cancelled FROM `booking` WHERE Slot_Booking_Id =? FOR UPDATE";
+    private static final String CANCEL_BOOKING_SQL = "UPDATE `booking` SET Is_Cancelled = 1 WHERE Slot_Booking_Id =?";
+//    private static final String GET_BOOKING_FOR_CANCELLATION_SQL = "SELECT Slot_Id, is_cancelled FROM Booking WHERE Booking_Id =? FOR UPDATE";
+//    private static final String CANCEL_BOOKING_SQL = "UPDATE Booking SET is_cancelled = 1 WHERE Booking_Id =?";
+    private static final String INCREMENT_SLOT_SEATS_SQL = "UPDATE Gym_Slot SET Avail_Seats = Avail_Seats + 1 WHERE Slot_Id =?";
     private static final String GET_GYMS_SQL = "SELECT * FROM `gym` WHERE is_approved = 1";
-    public static int slot_bookingId = 504;// This one is used in getAllGyms()
+    public static int slot_bookingId = 506;// This one is used in getAllGyms()
 
     @Override
     public void getAllGyms() {
@@ -178,10 +194,32 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
             System.err.println("Invalid format encountered: " + e.getMessage());
         }
     }
+    public int getLatestId() {
+        int latestId = -1; // Default value if no record is found
+        String sql = "SELECT Slot_Booking_Id FROM Flipfit_Schema.Booking ORDER BY Slot_Booking_Id DESC LIMIT 1";
+
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet rs = preparedStatement.executeQuery()) {
+
+            // Check if a result was returned
+            if (rs.next()) {
+                latestId = rs.getInt(1); // Get the integer from the first column of the result
+                // Or you can use the column name: latestId = rs.getInt("your_int_column");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("DAO: SQL Exception while fetching the latest ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return latestId;
+    }
 
     @Override
     public boolean createBooking(int customerId, int gymId, int slotId) { // Renamed userId to customerId for clarity
         Connection connection = null; // Declare connection outside try-block for finally access
+        slot_bookingId = getLatestId();
+        slot_bookingId++;
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
             connection.setAutoCommit(false); // Start transaction
@@ -223,6 +261,7 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
             // Create the new booking
             // Use Statement.RETURN_GENERATED_KEYS to get the auto-generated Slot_Booking_Id
             try (PreparedStatement insertStmt = connection.prepareStatement(CREATE_BOOKING_SQL, Statement.RETURN_GENERATED_KEYS)) {
+
                 insertStmt.setInt(1, slot_bookingId);
                 insertStmt.setInt(2, customerId);         // Parameter 1: Customer_Id
                 insertStmt.setInt(3, slotId);             // Parameter 2: Slot_Id (CORRECTED)
@@ -251,7 +290,7 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
             }
 
             connection.commit();
-            slot_bookingId++; // Commit transaction if all steps succeeded
+            // Commit transaction if all steps succeeded
             return true; // Indicate successful booking
 
         } catch (SQLException e) {
@@ -295,7 +334,7 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
                 System.out.println("SlotId is " + rs.getInt("Slot_Id"));
                 System.out.println("Gym Id is " + rs.getInt("Gym_Id"));
                 System.out.println("Date is " + rs.getString("Date"));
-                System.out.println("Status of your booking " + rs.getBoolean("Is_Cancelled"));
+                System.out.println("Status of your booking " + !rs.getBoolean("Is_Cancelled"));
 
             }
         } catch (SQLException e) {
@@ -303,5 +342,70 @@ public class FlipFitCustomerDAO implements FlipFitCustomerDAOInterface
             e.printStackTrace();
         }
 
+    }
+    @Override
+    public boolean cancelBooking(int bookingId) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+            connection.setAutoCommit(false); // Start transaction
+
+            // Get booking details and lock the row
+            int slotId = -1;
+            boolean isAlreadyCancelled = true;
+            try (PreparedStatement selectStmt = connection.prepareStatement(GET_BOOKING_FOR_CANCELLATION_SQL)) {
+                selectStmt.setInt(1, bookingId);
+                ResultSet rs = selectStmt.executeQuery();
+                if (rs.next()) {
+                    slotId = rs.getInt("Slot_Id");
+                    isAlreadyCancelled = rs.getBoolean("Is_Cancelled");
+
+                } else {
+                    connection.rollback();
+                    return false; // Booking not found
+                }
+            }
+
+            if (isAlreadyCancelled) {
+                connection.rollback();
+                return false; // Already cancelled
+            }
+
+            // Mark booking as cancelled
+            try (PreparedStatement cancelStmt = connection.prepareStatement(CANCEL_BOOKING_SQL)) {
+                cancelStmt.setInt(1, bookingId);
+                cancelStmt.executeUpdate();
+            }
+
+            // Increment available seats for the corresponding slot
+            try (PreparedStatement updateStmt = connection.prepareStatement(INCREMENT_SLOT_SEATS_SQL)) {
+                updateStmt.setInt(1, slotId);
+                updateStmt.executeUpdate();
+            }
+            System.out.println("Booking Cancelled Successfully");
+            connection.commit(); // Commit transaction
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("DAO: SQL Exception during booking cancellation: " + e.getMessage());
+            if (connection!= null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (connection!= null) {
+                try {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

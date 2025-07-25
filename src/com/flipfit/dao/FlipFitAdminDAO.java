@@ -9,7 +9,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.regex.*;
 
 /**
  * Data Access Object for Admin functionalities.
@@ -18,6 +21,14 @@ import java.util.stream.Collectors;
 public class FlipFitAdminDAO implements FlipFitAdminDAOInterface {
 
     // In-memory storage for pending approvals (can be migrated to DB status flags)
+    public class EmailValidator {
+        public static boolean isValidEmail(String email) {
+            String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+            Pattern pattern = Pattern.compile(emailRegex);
+            Matcher matcher = pattern.matcher(email);
+            return matcher.matches();
+        }
+    }
     private static final Map<String, GymOwner> gymOwners = new HashMap<>();
     private static final Map<String, Gym> gyms = new HashMap<>();
     private static final Map<String, Boolean> ownerApprovalStatus = new HashMap<>();

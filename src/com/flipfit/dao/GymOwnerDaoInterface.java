@@ -14,7 +14,7 @@ public interface GymOwnerDaoInterface {
     public List<Gym> getCenterDetails(int ownerId);
 
 
-
+    public boolean addSlot(Slot gSlot);
     public boolean registerGymCenter(Gym gCenter);
 
 }

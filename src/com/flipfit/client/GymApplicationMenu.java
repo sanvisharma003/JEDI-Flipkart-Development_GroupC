@@ -5,10 +5,24 @@ import java.sql.*;
 import java.text.ParseException;
 import java.util.Scanner;
 import com.flipfit.client.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.flipfit.client.GymApplicationMenu.EmailValidator.isValidEmail;
 
 
 public class GymApplicationMenu
 {
+    public class EmailValidator {
+        public static boolean isValidEmail(String email) {
+//            String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+            String emailRegex = "^[A-Za-z0-9+_.-]+@([A-Za-z0-9-]+\\.)+(com|in)$";
+            Pattern pattern = Pattern.compile(emailRegex);
+            Matcher matcher = pattern.matcher(email);
+            return matcher.matches();
+        }
+    }
+
     public static Scanner scanner = new Scanner(System.in);
     private static GymAdminMenu adminClient = new GymAdminMenu();
     private static GymCustomerMenu customerClient = new GymCustomerMenu();
@@ -54,6 +68,7 @@ public class GymApplicationMenu
 
                case 4:
                    System.out.println("Thanks for visiting!");
+
                    return;
 
                default:
@@ -72,12 +87,16 @@ public class GymApplicationMenu
         try {
             System.out.println("Enter your Role \n 1 Admin \n 2 Customer \n 3 Gym Owner \n 4 Exit");
             int role = scanner.nextInt();
-
+            if(role ==4)
+            {
+                mainPage();
+            }
             System.out.println("Enter your Username");
             userName = scanner.next();
 
             System.out.println("Enter your Password");
             password = scanner.next();
+
 
             try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
                  PreparedStatement preparedStatement = connection.prepareStatement(get_pass)) {
@@ -120,6 +139,7 @@ public class GymApplicationMenu
                                 }
                                 break;
                             case 3:
+
                                 if (roleid == 3 && password.equals(dbPassword)) {
                                     System.out.println("Login successful!");
                                     System.out.println("Welcome Owner!");
@@ -133,6 +153,10 @@ public class GymApplicationMenu
                                     return;
                                 }
                                 break;
+
+                            case 4:
+                                mainPage();
+
                         }
                     }
                 } catch (SQLException e) {
@@ -170,6 +194,12 @@ public class GymApplicationMenu
 
                     System.out.println("Enter your email");
                     email = scanner.next();
+                    if (isValidEmail(email)) {
+//                       continue;
+                    } else {
+                        System.out.println("Email is invalid");
+                        mainPage();
+                    }
 
                     System.out.println("Enter your phone no");
                     phone = scanner.next();
@@ -223,6 +253,12 @@ public class GymApplicationMenu
 
                     System.out.println("Enter your email");
                     email = scanner.next();
+                    if (isValidEmail(email)) {
+//                        continue;
+                    } else {
+                        System.out.println("Email is invalid");
+                        mainPage();
+                    }
 
                     System.out.println("Enter your phone no");
                     phone = scanner.next();
@@ -277,6 +313,7 @@ public class GymApplicationMenu
                     return;
 
                 case 3:
+                    mainPage();
                     return;
             }
         }
