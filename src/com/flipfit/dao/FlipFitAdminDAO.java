@@ -1,58 +1,36 @@
 package com.flipfit.dao;
-
 import com.flipfit.bean.Gym;
 import com.flipfit.bean.GymOwner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * .In-memory implementation of the admin DAO.
- * Uses Maps to simulate a database for storing and managing approvals.
+ * Data Access Object for Admin functionalities.
+ * Manages database interactions for Gyms and GymOwners.
  */
 public class FlipFitAdminDAO implements FlipFitAdminDAOInterface {
 
+    // In-memory storage for pending approvals (can be migrated to DB status flags)
     private static final Map<String, GymOwner> gymOwners = new HashMap<>();
     private static final Map<String, Gym> gyms = new HashMap<>();
     private static final Map<String, Boolean> ownerApprovalStatus = new HashMap<>();
     private static final Map<String, Boolean> gymApprovalStatus = new HashMap<>();
 
-    // Static block for hardcoded data
-    static {
-        GymOwner owner1 = new GymOwner();
-        owner1.setGymUserId(101);
-        owner1.setPAN("APN12345X"); // Using PAN as a unique String ID
-        owner1.setGymUserName("owner_pending_1");
-        gymOwners.put(owner1.getPAN(), owner1);
-        ownerApprovalStatus.put(owner1.getPAN(), false); // Pending
-
-        GymOwner owner2 = new GymOwner();
-        owner2.setGymUserId(102);
-        owner2.setPAN("BQN67890Y");
-        owner2.setGymUserName("owner_pending_2");
-        gymOwners.put(owner2.getPAN(), owner2);
-        ownerApprovalStatus.put(owner2.getPAN(), false); // Pending
-
-        GymOwner owner3 = new GymOwner();
-        owner3.setGymUserId(103);
-        owner3.setPAN("CRZ11223Z");
-        owner3.setGymUserName("owner_approved_1");
-        gymOwners.put(owner3.getPAN(), owner3);
-        ownerApprovalStatus.put(owner3.getPAN(), true); // Approved
-
-        Gym gym1 = new Gym();
-        gym1.setGymId(201);
-        gym1.setGymName("Downtown Fitness (Approved)");
-        gyms.put(String.valueOf(gym1.getGymId()), gym1);
-        gymApprovalStatus.put(String.valueOf(gym1.getGymId()), true); // Approved
-
-        Gym gym2 = new Gym();
-        gym2.setGymId(202);
-        gym2.setGymName("Uptown Strength (Pending)");
-        gyms.put(String.valueOf(gym2.getGymId()), gym2);
-        gymApprovalStatus.put(String.valueOf(gym2.getGymId()), false); // Pending
-    }
+    // SQL query to fetch a gym's details by its ID
+    private static final String GET_GYM_BY_ID_SQL = "SELECT * FROM Gym";
+    private static final String GET_PENDING_OWNERS_SQL = "SELECT u.Username, o.* FROM Owner o JOIN User u ON o.user_Id = u.User_Id WHERE o.is_approved = 0";
+    private static final String VALIDATE_OWNER_SQL = "UPDATE Owner SET is_approved =? WHERE PAN =?";
+    private static final String GET_PENDING_GYMS_SQL = "SELECT * FROM Gym WHERE is_approved = 0";
+    private static final String VALIDATE_GYM_SQL = "UPDATE Gym SET is_approved =? WHERE Gym_Id =?";
+    private static final String GET_OWNER = "SELECT Owner_Id, Email, Phone, Gym_Id, PAN, Aadhar, GSTIN from Owner";
+    //private static final String GET_GYM_BY_ID_SQL = "SELECT Gym_Id, Owner_Id, Gym_Name, location FROM Gym WHERE Gym_Id =?";
 
     @Override
     public List<GymOwner> getPendingGymOwners() {
@@ -92,13 +70,67 @@ public class FlipFitAdminDAO implements FlipFitAdminDAOInterface {
         }
     }
 
-    @Override
-    public GymOwner getOwnerById(String ownerId) {
-        return gymOwners.get(ownerId);
+//    @Override
+//    public GymOwner getOwnerById(String ownerId) {
+//        return
+//                gymOwners.get(ownerId);
+//    }
+public GymOwner getOwnerById() {
+    GymOwner owner = null;
+    try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+         PreparedStatement preparedStatement = connection.prepareStatement(GET_OWNER)) {
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        // If a record is found, map the data to a new Gym object.
+        while (rs.next())
+        {
+            System.out.println("\n--- Owner Details ---");
+            System.out.println("ID: " + rs.getInt("Owner_Id"));
+            System.out.println("Email: " + rs.getString("Email"));
+            System.out.println("Gym_Id: " + rs.getString("Gym_Id"));
+            System.out.println("PAN: " + rs.getString("PAN"));
+            System.out.println("AAdhar: " + rs.getString("Aadhar"));
+            System.out.println("GSTIN: " + rs.getString("GSTIN"));
+
+            System.out.println("-------------------");
+        }
+
+    } catch (SQLException e) {
+        System.err.println("SQL Exception occurred while fetching owner by ID: " + e.getMessage());
+        e.printStackTrace();
     }
+    return owner;
+}
 
     @Override
-    public Gym getGymById(String gymId) {
-        return gyms.get(gymId);
+    public void getGymById() {
+        //Gym gym = null;
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_GYM_BY_ID_SQL)) {
+
+            //preparedStatement.setInt(1, gymId);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            // If a record is found, map the data to a new Gym object.
+            while (rs.next())
+            {
+                System.out.println("\n--- Gym Details ---");
+                System.out.println("ID: " + rs.getInt("Gym_Id"));
+                System.out.println("Name: " + rs.getString("Gym_Name"));
+                System.out.println("Location: " + rs.getString("Location"));
+                System.out.println("Is Approved: " + rs.getBoolean("is_approved"));
+                System.out.println("-------------------");
+                //gym.setLocation(rs.getString("location"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("SQL Exception occurred: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid Gym ID format. Please provide a numeric ID. " + e.getMessage());
+        }
+
     }
 }

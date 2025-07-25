@@ -56,15 +56,10 @@ public interface AdminBusinessInterface {
      */
     void rejectGymRequest(String gymId);
 
-    /**
-     * Displays the details of a specific gym owner.
-     * @param ownerId The unique ID of the owner to view.
-     */
-    void viewOwner(String ownerId);
 
-    /**
-     * Displays the details of a specific gym.
-     * @param gymId The unique ID of the gym to view.
-     */
-    void viewGym(String gymId);
+    void viewOwner();
+
+
+    void viewGym();
+
 }

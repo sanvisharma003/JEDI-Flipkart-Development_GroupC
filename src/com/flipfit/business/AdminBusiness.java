@@ -90,28 +90,15 @@ public class AdminBusiness implements AdminBusinessInterface {
     }
 
     @Override
-    public void viewOwner(String ownerId) {
-        GymOwner owner = adminDao.getOwnerById(ownerId);
-        if (owner!= null) {
-            System.out.println("\n--- Owner Details ---");
-            System.out.println("ID (PAN): " + owner.getPAN());
-            System.out.println("Name: " + owner.getGymUserName());
-            System.out.println("---------------------");
-        } else {
-            System.out.println("Owner with ID " + ownerId + " not found.");
-        }
+    public void viewOwner() {
+        adminDao.getOwnerById();
+
     }
 
     @Override
-    public void viewGym(String gymId) {
-        Gym gym = adminDao.getGymById(gymId);
-        if (gym!= null) {
-            System.out.println("\n--- Gym Details ---");
-            System.out.println("ID: " + gym.getGymId());
-            System.out.println("Name: " + gym.getGymName());
-            System.out.println("-------------------");
-        } else {
-            System.out.println("Gym with ID " + gymId + " not found.");
-        }
+    public void viewGym()
+    {
+        adminDao.getGymById();
+
     }
 }

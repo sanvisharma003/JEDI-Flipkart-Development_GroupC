@@ -14,6 +14,7 @@ public interface FlipFitAdminDAOInterface {
     void validateGymOwner(String ownerId, boolean isApproved);
     List<Gym> getPendingGymCentres();
     void validateGymCentre(String gymCentreId, boolean isApproved);
-    GymOwner getOwnerById(String ownerId);
-    Gym getGymById(String gymId);
-}
+    GymOwner getOwnerById();
+    public void getGymById();
+
+    }

@@ -26,7 +26,9 @@ public class GymApplicationMenu
     public static int own_user_id = 2013;
     public static int own_id = 203;
 
-    private static final String get_pass = "SELECT Password, Role_Id FROM User where Username = ?;";
+    public static int user_id ;
+
+    private static final String get_pass = "SELECT Password, Role_Id, User_Id FROM User where Username = ?;";
     private static final String role = "SELECT Role FROM User;";
 
     private static void mainPage()
@@ -86,7 +88,8 @@ public class GymApplicationMenu
                     if (resultSet.next()) {
                         String dbPassword = resultSet.getString("Password");
                         roleid = resultSet.getInt("Role_Id");
-                        System.out.println(roleid);
+                        user_id = resultSet.getInt("User_Id");
+                        //System.out.println(roleid);
 
                         switch (role) {
                             case 1:
@@ -151,14 +154,16 @@ public class GymApplicationMenu
     {
         String userName, password, email, phone, add, pan, aadhar, gstin;
 
-        System.out.println("Enter your role \n1. Customer \n2. Owner");
-        int cho= scanner.nextInt();
-
-        switch(cho)
+        while(true)
         {
-            case 1:
-                System.out.println("Enter your Username");
-                userName = scanner.next();
+            System.out.println("Enter your role \n1. Customer \n2. Owner\n3. Return");
+            int cho = scanner.nextInt();
+
+            switch (cho)
+            {
+                case 1:
+                    System.out.println("Enter your Username");
+                    userName = scanner.next();
 
                     System.out.println("Enter your Password");
                     password = scanner.next();
@@ -184,8 +189,7 @@ public class GymApplicationMenu
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
 
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
@@ -201,8 +205,7 @@ public class GymApplicationMenu
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
 
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
@@ -235,7 +238,7 @@ public class GymApplicationMenu
 
 
                     try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
-                         PreparedStatement preparedStatement = connection.prepareStatement(cust_pass)) {
+                         PreparedStatement preparedStatement = connection.prepareStatement(own_pass)) {
 
                         preparedStatement.setInt(1, own_user_id);
                         preparedStatement.setInt(2, 3);
@@ -245,13 +248,12 @@ public class GymApplicationMenu
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
 
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
                     try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Flipfit_Schema", "root", "Sanvi@2003");
-                         PreparedStatement preparedStatement = connection.prepareStatement(cust_register)) {
+                         PreparedStatement preparedStatement = connection.prepareStatement(own_register)) {
 
                         preparedStatement.setInt(1, own_id);
                         preparedStatement.setInt(2, own_user_id);
@@ -264,8 +266,7 @@ public class GymApplicationMenu
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
 
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
@@ -273,9 +274,12 @@ public class GymApplicationMenu
                     own_id++;
 
                     System.out.println("Registered as Owner");
-                    return ;
-            }
+                    return;
 
+                case 3:
+                    return;
+            }
+        }
     }
 
     public static void main(String[] args) {

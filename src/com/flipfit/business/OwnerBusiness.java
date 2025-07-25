@@ -22,7 +22,7 @@ public class OwnerBusiness implements OwnerBusinessInterface
         gym.setGymId(gymIdCount);
         gymIdCount++;
 
-        System.out.println(gymIdCount);
+        //System.out.println(gymIdCount);
 
         gymOwnerDao.registerGymCenter(gym);
         System.out.println("Adding gym");
