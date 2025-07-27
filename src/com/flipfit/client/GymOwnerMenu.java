@@ -53,7 +53,6 @@ public class GymOwnerMenu {
     public static void addSlot(int GymId,String starttime,String endTime) {
         gymOwnerBusiness.add_slot(GymId,starttime,endTime);
     }
-    /// /////////////////////////////////
 
 
 

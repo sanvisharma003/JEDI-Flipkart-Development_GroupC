@@ -88,6 +88,8 @@ private static final String INSERT_SLOT_SQL = "INSERT INTO Gym_Slot (Slot_Id, St
             preparedStatement.setInt(2, ownerId);
             preparedStatement.setString(3, gCenter.GymName);
             preparedStatement.setInt(4, 0);
+            //preparedStatement.setInt(5, gCenter.address);
+
 
 
             int rowsAffected = preparedStatement.executeUpdate();
@@ -206,7 +208,7 @@ private static final String INSERT_SLOT_SQL = "INSERT INTO Gym_Slot (Slot_Id, St
             if (!paymentsFound.isEmpty())
             {
                 // Prepare data for tabular display using TableFormatter
-                String[] headers = {"Payment ID", "User ID", "Balance", "Amount", "Booking ID"};
+                String[] headers = {"Payment ID", "User ID", "Balance", "Gym_Id", "Booking ID"};
                 List<String[]> data = new ArrayList<>();
 
                 for (Payment payment : paymentsFound) {
@@ -214,7 +216,7 @@ private static final String INSERT_SLOT_SQL = "INSERT INTO Gym_Slot (Slot_Id, St
                             String.valueOf(payment.getPaymentId()),
                             String.valueOf(payment.getGymUserId()),
                             String.format("%.2f", payment.getCurrentBalance()), // Format balance to 2 decimal places
-                            String.format("%.2f", payment.getAmount()),         // Format amount to 2 decimal places
+                            String.valueOf(payment.getAmount()),         // Format amount to 2 decimal places
                             String.valueOf(payment.getSlotBookingId())
                     });
                 }

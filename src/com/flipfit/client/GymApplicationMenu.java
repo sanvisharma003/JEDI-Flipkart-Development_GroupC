@@ -13,7 +13,8 @@ import static com.flipfit.client.GymApplicationMenu.EmailValidator.isValidEmail;
 
 public class GymApplicationMenu
 {
-    public class EmailValidator {
+    public class EmailValidator
+    {
         public static boolean isValidEmail(String email) {
 //            String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
             String emailRegex = "^[A-Za-z0-9+_.-]+@([A-Za-z0-9-]+\\.)+(com|in)$";
@@ -29,13 +30,13 @@ public class GymApplicationMenu
     private static GymOwnerMenu gymOwnerClient = new GymOwnerMenu();
 
     private static final String cust_register = "INSERT INTO Customer (Customer_id, User_id, Email, Phone, Address) VALUES (?, ?, ?, ?, ?);";
-    private static final String cust_pass = "INSERT INTO User (User_Id, Role_Id, Username, Password) VALUES (?, ?, ?, ?);";
+    private static final String cust_pass = "INSERT INTO User (User_Id, Role_Id, Username, Password, Email, PhoneNo) VALUES (?, ?, ?, ?, ?, ?);";
 
     public static int cust_user_id = 1014;
     public static int cust_id = 104;
 
     private static final String own_register = "INSERT INTO Owner (Owner_Id, user_Id, Email, Phone, PAN, Aadhar, GSTIN) VALUES (?, ?, ?, ?, ?, ?, ?);";
-    private static final String own_pass = "INSERT INTO User (User_Id, Role_Id, Username, Password) VALUES (?, ?, ?, ?);";
+    private static final String own_pass = "INSERT INTO User (User_Id, Role_Id, Username, Password, Email, PhoneNo) VALUES (?, ?, ?, ?, ?, ?);";
 
     public static int own_user_id = 2013;
     public static int own_id = 203;
@@ -194,12 +195,12 @@ public class GymApplicationMenu
 
                     System.out.println("Enter your email");
                     email = scanner.next();
-                    if (isValidEmail(email)) {
-//                       continue;
-                    } else {
-                        System.out.println("Email is invalid");
-                        mainPage();
-                    }
+//                    if (isValidEmail(email)) {
+////                       continue;
+//                    } else {
+//                        System.out.println("Email is invalid");
+//                        mainPage();
+//                    }
 
                     System.out.println("Enter your phone no");
                     phone = scanner.next();
@@ -215,6 +216,8 @@ public class GymApplicationMenu
                         preparedStatement.setInt(2, 2);
                         preparedStatement.setString(3, userName);
                         preparedStatement.setString(4, password);
+                        preparedStatement.setString(5, email);
+                        preparedStatement.setString(6, phone);
 
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
@@ -253,12 +256,15 @@ public class GymApplicationMenu
 
                     System.out.println("Enter your email");
                     email = scanner.next();
-                    if (isValidEmail(email)) {
-//                        continue;
-                    } else {
-                        System.out.println("Email is invalid");
-                        mainPage();
-                    }
+//                    if (isValidEmail(email))
+//                    {
+////                        continue;
+//                    }
+//                    else
+//                    {
+//                        System.out.println("Email is invalid");
+//                        mainPage();
+//                    }
 
                     System.out.println("Enter your phone no");
                     phone = scanner.next();
@@ -280,6 +286,8 @@ public class GymApplicationMenu
                         preparedStatement.setInt(2, 3);
                         preparedStatement.setString(3, userName);
                         preparedStatement.setString(4, password);
+                        preparedStatement.setString(5, email);
+                        preparedStatement.setString(6, phone);
 
                         int rowsAffected = preparedStatement.executeUpdate();
                         System.out.println(rowsAffected + " row(s) inserted.");
